@@ -77,7 +77,7 @@ foreach $location (sort {$a <=> $b} keys %data) {
 close (OUTPUT1);
 
 open (OUTPUT2,"> results_mutations_freq.tsv");
-print OUTPUT2 "# Samples\tPosition\tGenee\tMutation\n";
+print OUTPUT2 "# Samples\tPosition\tGene\tMutation\n";
 foreach $entry (sort keys %frequency) {
 	print OUTPUT2 "$frequency{$entry}\t$entry\n";
 }
