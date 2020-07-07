@@ -5,6 +5,12 @@ print STDERR "Scatterplots: https://scatterplot.online\n";
 system("rm -rf results_plots");
 system("mkdir results_plots");
 
+$fractionpass = 0;
+$pass100x = 0;
+$pass1000x = 0;
+$passindel = 0;
+$passframeshift = 0;
+
 if ($ARGV[0]) {							# load Ct values
 	open (INPUT,"< $ARGV[0]");
 	while (defined($line=<INPUT>)) {
@@ -22,15 +28,15 @@ while (defined($line=<INPUT>)) {
 		next;
 	}
 	@temp = split(/\t/,$line);
-	$genomefraction{$temp[0]}=$temp[21];
-	$sarscontent{$temp[0]}=$temp[18];
-	$avecoverage{$temp[0]}=$temp[28];
+	$genomefraction{$temp[0]}=$temp[23];
+	$sarscontent{$temp[0]}=$temp[20];
+	$avecoverage{$temp[0]}=$temp[30];
 
-	$ambiquity{$temp[0]}=$temp[23];
-	$mismatch{$temp[0]}=$temp[24];
-	$indels{$temp[0]}=$temp[25];
+	$ambiquity{$temp[0]}=$temp[25];
+	$mismatch{$temp[0]}=$temp[26];
+	$indels{$temp[0]}=$temp[27];
 
-	$value = $temp[32] + $temp[33] + $temp[34] + $temp[35];
+	$value = $temp[34] + $temp[35] + $temp[36] + $temp[37];
 	$coverage100plus{$temp[0]} = $value;
 
 	$count++;
@@ -40,8 +46,14 @@ while (defined($line=<INPUT>)) {
 	if ($temp[7] eq "PASS") {
 		$pass100x++;
 	}
-	if ($temp[7] eq "PASS") {
+	if ($temp[8] eq "PASS") {
 		$pass1000x++;
+	}
+	if ($temp[9] eq "PASS") {
+		$passindel++;
+	}
+	if ($temp[10] eq "PASS") {
+		$passframeshift++;
 	}
 	
 }
@@ -50,6 +62,8 @@ close (INPUT);
 print STDERR "$fractionpass of $count PASS Genome Fraction of at least 90\%\n";
 print STDERR "$pass100x of $count PASS 90\% of positions have at least 100x coverage\n";
 print STDERR "$pass1000x of $count PASS 90\% of positions have at least 1000x coverage\n";
+print STDERR "$passindel of $count PASS No indels detected (maximum length 85bp)\n";
+print STDERR "$passframeshift of $count PASS No frameshifts in SARS-CoV-2 open reading frames\n";
 
 # overview plot
 
