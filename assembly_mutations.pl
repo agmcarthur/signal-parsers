@@ -9,18 +9,19 @@ while (defined($line=<INPUT>)) {
 		next;
 	}
 	@temp = split(/\t/,$line);
-	if ($temp[38] eq "n.d.") {
+	if ($temp[40] eq "n.d.") {
 		next;
 	}
-	$fraction{$temp[0]} = $temp[21];
-	$coverage{$temp[0]} = $temp[28];
-	$temp[38] =~ s/^ //;
-	$temp[38] =~ s/,//g;
-	$temp[38] =~ s/&nbsp;/ /g;
-	$temp[38] =~ s/&#8209;/-/g;
-	$temp[38] =~ s/&#8211;/-/g;
-	$temp[38] =~ s/&Delta;/delta/g;
-	@mutations = split(/;/,$temp[38]);
+	$fraction{$temp[0]} = $temp[23];
+	$coverage{$temp[0]} = $temp[30];
+	$temp[40] =~ s/^ //;
+	$temp[40] =~ s/,//g;
+	$temp[40] =~ s/&nbsp;/ /g;
+	$temp[40] =~ s/&#8209;/-/g;
+	$temp[40] =~ s/&#8231;/-/g;
+	$temp[40] =~ s/&#8211;/-/g;
+	$temp[40] =~ s/&Delta;/delta/g;
+	@mutations = split(/;/,$temp[40]);
 	foreach $mutant (@mutations) {
 		($position,$description,$gene) = $mutant =~ /^[A-Z]+ ([0-9]+)(.*of reads\)) (.*)/;
 		if ($mutant =~ /^MC INDEL/) {

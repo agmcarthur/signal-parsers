@@ -42,6 +42,9 @@ open (OUTPUT1,"> ${filebase}_statistics.tsv");
 print OUTPUT1 "Pipeline Version";
 print OUTPUT1 "\tQC: Genome Fraction less than 90%\tQC: Depth of Coverage less than 2000 fold\tQC: Variant with less than 90% frequency among reads\tQC: Per base sequence quality\tQC: Adapter Content";
 print OUTPUT1 "\tQC: At least 90% of positions have better than 100x Coverage\tQC: At least 90% of positions have better than 1000x Coverage";
+
+print OUTPUT1 "\tQC: No indels detected (maximum length 85bp)\tQC: Frameshifts in SARS-CoV-2 open reading frames";
+
 print OUTPUT1 "\tRaw Read Pairs\tRaw Nucleotides (bp)\tR1 with PCR primer\tR2 with PCR primer\tPost Primer Trim Read Pairs\tPost Primer Trim Nucelotides (bp)";
 print OUTPUT1 "\t# Paired Sequences Used\tFASTQC FAIL\tFASTQC WARN";
 print OUTPUT1 "\tSARS-COV-2 in Trimmed FASTQ (\%)";
@@ -54,7 +57,7 @@ print OUTPUT1 "\tiVar Variants";
 print OUTPUT1 "\tBreSeq Variants";
 print OUTPUT1 "\n";
 
-open (INPUT,"< sample.txt");
+open (INPUT,"< ${filebase}_sample.txt");
 while (defined($line=<INPUT>)) {
 	chomp($line);
 	if ($line =~ /version/) {
@@ -186,6 +189,12 @@ while (defined($line=<INPUT>)) {
 			if ($line =~ /1000x/) {
 				($qc1000) = $line =~ /(....)  At least/
 			}
+			if ($line =~ /No indels detected/) {
+				($indelcheck) = $line =~ /(....)  No indels detected/
+			}
+			if ($line =~ /Frameshifts in SARS-CoV-2 open reading frames/) {
+				($frameshifts) = $line =~ /(....)  Frameshifts in SARS-CoV-2 open reading frames/
+			}
 		}
 	}
 
@@ -198,8 +207,8 @@ $purgeload = "n.d.";
 
 # breseq
 
-if (-e "breseq/output/index.html") {
-	open (INPUT,"< breseq/output/index.html");
+if (-e "breseq/${filebase}_output/index.html") {
+	open (INPUT,"< breseq/${filebase}_output/index.html");
 	while (defined($line=<INPUT>)) {
 		chomp($line);
 		@temp = split(/\t/,$line);
@@ -249,6 +258,7 @@ unless ($breseq =~ /;/) {
 
 print OUTPUT1 "$version";
 print OUTPUT1 "\t$qcfraction\t$qccoverage\t$qcvariants\t$qcperbase\t$qcadapter\t$qc100\t$qc1000";
+print OUTPUT1 "\t$indelcheck\t$frameshifts";
 print OUTPUT1 "\t$rawreadpairs\t$rawbp\t$R1withprimer\t$R2withprimer\t$postprimerreadpairs\t$postprimerbp";
 print OUTPUT1 "\t$finalR1";
 print OUTPUT1 "\t$fastqcfail\t$fastqcwarn";
@@ -266,22 +276,22 @@ close (OUTPUT1);
 
 # exit
 
-system("cp coverage.png ${filebase}_coverage.png");
-system("cp core/virus.consensus.fa ${filebase}.fa");
-system("cp sample.txt ${filebase}_report.txt");
+system("cp coverage/${filebase}_coverage_plot.png ${filebase}_coverage.png");
+system("cp core/${filebase}.consensus.fa ${filebase}.fa");
+system("cp ${filebase}_sample.txt ${filebase}_report.txt");
 
-if (-e "breseq/output/index.html") {
-	system("cp breseq/output/index.html ${filebase}_mutations.html");
+if (-e "breseq/${filebase}_output/index.html") {
+	system("cp breseq/${filebase}_output/index.html ${filebase}_mutations.html");
 }
 
 open (OUTPUT,"> ${filebase}_report.html");
-open (INPUT,"< sample.html");
+open (INPUT,"< ${filebase}_sample.html");
 while (defined($line=<INPUT>)) {
 	chomp($line);
-	if ($line =~ /coverage.png/) {
-		$line =~ s/coverage.png/${filebase}_coverage.png/g;
-	} elsif ($line =~ /breseq\/output\/index.html/) {
-		$line =~ s/breseq\/output\/index.html/${filebase}_mutations.html/g;
+	if ($line =~ /coverage\/${filebase}_coverage_plot.png/) {
+		$line =~ s/coverage\/${filebase}_coverage_plot.png/${filebase}_coverage.png/g;
+	} elsif ($line =~ /breseq\/${filebase}_output\/index.html/) {
+		$line =~ s/breseq\/${filebase}_output\/index.html/${filebase}_mutations.html/g;
 	}
 	print OUTPUT "$line\n";
 }
