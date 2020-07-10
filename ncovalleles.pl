@@ -85,15 +85,21 @@ foreach $position (sort {$a <=> $b} keys %heterofreq) {
 		$nothetnoise1++;
 		$note = " ";
 		if ($position < 56) {
-			$note = "5' sequencing/mapping error region";
+			$note .= "5' sequencing/mapping error region; ";
 		}
 		if ($position > 29803) {
-			$note = "3' sequencing/mapping error region";
+			$note .= "3' sequencing/mapping error region; ";
 		}
 		if ($homoplasy{$position}) {
-			$note = "homoplastic site";
+			$note .= "homoplastic site; ";
 		}
-		print "\t$heterofreq{$position}\tisolates \@ position $position  \t$amplicon{$position}$note\n";
+		if ($posfreq{$position}) {
+			$count = keys %{$posfreq{$position}};
+			$note .= "$count isolates with resolved variants";
+		} else {
+			$note .= "0 isolates with resolved variants";
+		}
+		print "\t$heterofreq{$position}\tisolates \@ position $position  \t$amplicon{$position}\t$note\n";
 	}
 }
 
