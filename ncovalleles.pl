@@ -36,7 +36,8 @@ foreach $file (@files) {
 			if ($temp[3] =~ /N/) {
 				$Ncount++;
 			} else {
-				$hetero{$temp[0]}{$temp[1]}++;		# first key is isolate, second key is position		
+				$heterofreq{$temp[1]}{$temp[0]}++;	# first key is position, second key is isolate	
+				$heterocount++;	
 			}
 		}
 		$isolates{$temp[0]}++;						# key is isolate
@@ -72,16 +73,10 @@ foreach $position (keys %posfreq) {
 }
 
 
-foreach $isolate (keys %hetero) {
-	foreach $position (keys %{$hetero{$isolate}}) {
-		$heterocount++;
-		$heterofreq{$position}++;					# key is position, value is # isolates with heterogeniety
-	}
-}
-
 print "Positions in the alignment having evidence of multiple nucleotides (X) in 2 or more isolates\n";
 foreach $position (sort {$a <=> $b} keys %heterofreq) {
-	if ($heterofreq{$position} > 1) {
+	$icount = keys %{$heterofreq{$position}};
+	if ($icount > 1) {
 		$nothetnoise1++;
 		$note = " ";
 		if ($position < 56) {
@@ -99,8 +94,20 @@ foreach $position (sort {$a <=> $b} keys %heterofreq) {
 		} else {
 			$note .= "0 isolates with resolved variants";
 		}
-		print "\t$heterofreq{$position}\tisolates \@ position $position  \t$amplicon{$position}\t$note\n";
+		print "\t$icount\tisolates \@ position $position  \t$amplicon{$position}\t$note\n";
+		foreach $isolate (keys %{$heterofreq{$position}}) {
+			$badamplicon{$amplicon{$position}}{$isolate}++;
+		}
 	}
+}
+
+foreach $amplicon (keys %badamplicon) {
+	open (OUTPUT,"> $amplicon.txt");
+	foreach $isolate (keys %{$badamplicon{$amplicon}}) {
+		($name) = $isolate =~ /Consensus_(.*)\.consensus_threshold/;
+		print OUTPUT "$name\n";
+	}
+	close (OUTPUT);
 }
 
 print "\nSummary\n";
