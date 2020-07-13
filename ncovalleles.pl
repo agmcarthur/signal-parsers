@@ -36,8 +36,9 @@ foreach $file (@files) {
 			if ($temp[3] =~ /N/) {
 				$Ncount++;
 			} else {
-				$heterofreq{$temp[1]}{$temp[0]}++;	# first key is position, second key is isolate	
+				$heterofreq{$temp[1]}{$temp[0]}++;			# first key is position, second key is isolate	
 				$heterocount++;	
+				$isolateheteropos{$temp[0]}{$temp[1]}++;	# first key is isolate, second key is position	
 			}
 		}
 		$isolates{$temp[0]}++;						# key is isolate
@@ -50,6 +51,18 @@ $count1 = keys %isolates;
 print "$count1 isolates in the NCOV-Tools tree\n";
 print "Amplicons are from ARTIC version 3, https://artic.network/resources/ncov/ncov-amplicon-v3.pdf\n";
 print "Homoplastic sites are from https://virological.org/t/issues-with-sars-cov-2-sequencing-data/473\n\n";
+
+print "Distribution of multiple nucleotides (X) among isolates\n";
+
+foreach $isolate (keys %isolateheteropos) {
+	$count = keys %{$isolateheteropos{$isolate}};
+	$freqdist{$count}++;
+}
+
+foreach $entry (sort {$a <=> $b} keys %freqdist) {
+	print "$freqdist{$entry}\tisolates with\t$entry\tX nucelotide(s)\n";
+}
+print "\n";
 
 foreach $position (keys %posfreq) {
 	$count = keys %{$posfreq{$position}};
