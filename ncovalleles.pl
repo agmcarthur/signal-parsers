@@ -20,6 +20,16 @@ while (defined($line=<DATA>)) {
 	}
 }
 
+if (@ARGV) {
+	open (INPUT,"< $ARGV[0]");
+	while (defined($line=<INPUT>)) {
+		chomp($line);
+		@temp = split(/\t/,$line);
+		$ctvalue{$temp[0]}=$temp[1];
+	}
+	close (INPUT);
+}
+
 chomp(@files=<*.tsv>);
 
 foreach $file (@files) {
@@ -30,14 +40,26 @@ foreach $file (@files) {
 			next;
 		}
 		@temp = split(/\t/,$line);
+		if ($temp[0] =~ /Consensus_/) {
+			($temp[0]) = $temp[0] =~ /Consensus_(.*)\.consensus_threshold/;
+		}
 		if ($temp[3] =~ /[ACGT]/) {
 			$posfreq{$temp[1]}{$temp[0]}++;			# first key is position, second key is isolate
 		} else {
 			if ($temp[3] =~ /N/) {
 				$Ncount++;
 			} else {
-				$heterofreq{$temp[1]}{$temp[0]}++;			# first key is position, second key is isolate	
-				$heterocount++;	
+				$heterofreq{$temp[1]}{$temp[0]}++;			# first key is position, second key is isolate
+				$heterocount++;
+				if ($ctvalue{$temp[0]}) {
+					if ($ctvalue{$temp[0]} > 30) {
+						$breakdownbadct{$temp[1]}{$temp[0]}++;
+					} else {
+						$breakdowngoodct{$temp[1]}{$temp[0]}++;
+					}
+				} else {
+					$breakdownnoct{$temp[1]}{$temp[0]}++;
+				}	
 				$isolateheteropos{$temp[0]}{$temp[1]}++;	# first key is isolate, second key is position	
 			}
 		}
@@ -117,8 +139,7 @@ foreach $position (sort {$a <=> $b} keys %heterofreq) {
 foreach $amplicon (keys %badamplicon) {
 	open (OUTPUT,"> $amplicon.txt");
 	foreach $isolate (keys %{$badamplicon{$amplicon}}) {
-		($name) = $isolate =~ /Consensus_(.*)\.consensus_threshold/;
-		print OUTPUT "$name\n";
+		print OUTPUT "$isolate\n";
 	}
 	close (OUTPUT);
 }
@@ -135,6 +156,14 @@ print "\t$heterocount of $basecount variant bases across all isolates have evide
 print "\t$count3 positions in the alignment have evidence of multiple nucleotides (X) in at least one isolate\n";
 print "\t$nothetnoise1 positions in the alignment have evidence of multiple nucleotides (X) in 2 or more isolates (see above)\n";
 
+print "\n";
+print "Position\tAmplicon\tCt <= 30\tCt > 30\tNo Ct\n";
+foreach $position (keys %heterofreq) {
+	$count1 = keys %{$breakdownnoct{$position}};
+	$count2 = keys %{$breakdownbadct{$position}};
+	$count3 = keys %{$breakdowngoodct{$position}};
+	print "$position\t$amplicon{$position}\t$count3\t$count2\t$count1\n";
+}
 
 __DATA__
 MN908947.3	54	385	1	nCoV-2019_1	+
