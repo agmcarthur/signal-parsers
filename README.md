@@ -1,4 +1,4 @@
-## SIGNAL Supplementary Scripts
+## SIGNAL Processing Scripts
 
 Processing of SIGNAL (https://github.com/jaleezyy/covid-19-signal) output.
 
@@ -86,7 +86,10 @@ Plot of fraction of genome with >100x coverage against final consensus genome fr
 
 ![overview.tsv](/images/100x_coverage.jpg)
 
+## SIGNAL Supplementary Scripts
 
+* ncovalleles.pl, summarizes mutations in the an NCoV-Tools tree, reading the output tsv files. Can accept a tab-delimited files of Ct values as a single argument
 
+* packagencov.sh, a custom script for use on the ascension server to package up NCoV-Tools results for download
 
-
+* packageresult.sh, a custom script for use on the ascension server to package up SIGNAL results for download
