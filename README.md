@@ -86,9 +86,16 @@ Plot of fraction of genome with >100x coverage against final consensus genome fr
 
 ![overview.tsv](/images/100x_coverage.jpg)
 
-## SIGNAL Supplementary Scripts
+## NCOV-Tools Scripts
 
 * ncovalleles.pl, summarizes mutations in the an NCoV-Tools tree, reading the output tsv files. Can accept a tab-delimited files of Ct values as a single argument
+
+* parsencovqc.pl, summarizes the contents of the qc_analysis folder, with summary statistics going to STDERR and sample-by-sample results going to STDOUT
+
+> cd qc_analysis
+> parsencovqc.pl > parsencovqc.txt
+
+## Supplementary Scripts
 
 * packagencov.sh, a custom script for use on the ascension server to package up NCoV-Tools results for download
 
