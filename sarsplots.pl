@@ -16,7 +16,11 @@ if ($ARGV[0]) {							# load Ct values
 	while (defined($line=<INPUT>)) {
 		chomp($line);
 		@temp = split(/\t/,$line);
-		$ctvalue{$temp[0]}=$temp[1];
+		if (defined($temp[1])) {
+			if ($temp[1] =~ /[0-9]/) {
+				$ctvalue{$temp[0]}=$temp[1];
+			}
+		}
 	}
 	close (INPUT);
 }
